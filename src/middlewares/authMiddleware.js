@@ -8,9 +8,20 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
     try {
       if (token) {
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_Key);
         const user = await User.findById(decodedToken?.id);
+
+        if (!user) {
+          throw new Error("User not found");
+        }
+
         req.user = user;
+        if (user.role === "admin") {
+          req.isAdmin = true;
+        } else {
+          req.isAdmin = false;
+          throw new Error("Access Denied");
+        }
         next();
       }
     } catch (error) {

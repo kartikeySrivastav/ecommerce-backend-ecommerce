@@ -2,9 +2,7 @@ const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../config/jwtToken");
 
-
 const createUser = asyncHandler(async (req, res) => {
-
   // Check for existing users with the same username or email
   const email = req.body.email;
   const findUser = await User.findOne({ email: email });
@@ -15,6 +13,7 @@ const createUser = asyncHandler(async (req, res) => {
     const newUser = await User.create({
       ...req.body,
       username: randomUsername,
+      role: "admin",
     });
     return res.json(newUser);
   } else {

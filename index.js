@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 // routes
 const userRouter = require("./src/routes/userRoute");
 const adminRouter = require("./src/routes/admin/authRoute");
-const categoryRouter = require('./src/routes/categoryRoute');
+const categoryRouter = require("./src/routes/categoryRoute");
 
 // mongodb connection
 
