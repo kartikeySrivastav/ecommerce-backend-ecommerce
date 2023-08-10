@@ -20,7 +20,10 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
           req.isAdmin = true;
         } else {
           req.isAdmin = false;
-          throw new Error("Access Denied");
+          res.status(403).json({
+            error: "fail",
+            message: "Access Denied",
+          });
         }
         next();
       }
