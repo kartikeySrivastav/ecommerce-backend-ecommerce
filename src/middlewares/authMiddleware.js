@@ -8,7 +8,7 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
     try {
       if (token) {
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_Key);
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const user = await User.findById(decodedToken?.id);
 
         if (!user) {
@@ -16,15 +16,6 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
         }
 
         req.user = user;
-        if (user.role === "admin") {
-          req.isAdmin = true;
-        } else {
-          req.isAdmin = false;
-          res.status(403).json({
-            error: "fail",
-            message: "Access Denied",
-          });
-        }
         next();
       }
     } catch (error) {
@@ -35,14 +26,44 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
   }
 });
 
-const isAdmin = asyncHandler(async (req, res, next) => {
-  const { email } = req.user;
-  const adminUser = await User.findOne({ email });
-  if (adminUser.role !== "admin") {
-    throw new Error("You are not an admin");
-  } else {
+const adminMiddleware = asyncHandler(async (req, res, next) => {
+  try {
+    const { email } = req.user;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.role !== "admin") {
+      throw new Error("User is not an admin");
+    }
+
     next();
+  } catch (error) {
+    console.error("Admin Middleware Error:", error.message);
+    res.status(403).json({ status: "error", message: "Admin access denied" });
   }
 });
 
-module.exports = { authMiddleware, isAdmin };
+const userMiddleware = asyncHandler(async (req, res, next) => {
+  try {
+    const { email } = req.user;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.role !== "user") {
+      throw new Error("Admin access denied");
+    }
+
+    next();
+  } catch (error) {
+    console.error("User Middleware Error:", error.message);
+    res.status(403).json({ status: "error", message: "Access denied" });
+  }
+});
+
+module.exports = { authMiddleware, adminMiddleware, userMiddleware };

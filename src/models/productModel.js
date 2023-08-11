@@ -16,14 +16,21 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    quantity: {
+      type: Number,
+      required: true,
+    },
     description: {
       type: String,
       required: true,
       trim: true,
     },
     offer: { type: Number },
-    productImage: String,
-
+    productImages: [
+      {
+        img: { type: String },
+      },
+    ],
     reviews: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

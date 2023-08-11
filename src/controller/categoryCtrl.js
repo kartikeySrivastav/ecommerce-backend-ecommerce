@@ -1,6 +1,7 @@
 const Category = require("../models/categoryModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
+const API_URL = process.env.API_URL;
 
 const createCategory = asyncHandler(async (req, res) => {
   try {
@@ -8,6 +9,11 @@ const createCategory = asyncHandler(async (req, res) => {
       name: req.body.name,
       slug: slugify(req.body.name, { lower: true }),
     };
+    if (req.file) {
+      categoryObj.categoryImage =
+        process.env.API_URL + "/images/" + req.file.filename;
+    }
+
     if (req.body.parentId) {
       categoryObj.parentId = req.body.parentId;
     }

@@ -13,7 +13,6 @@ const createUser = asyncHandler(async (req, res) => {
     const newUser = await User.create({
       ...req.body,
       username: randomUsername,
-      role: "admin",
     });
     return res.json(newUser);
   } else {
