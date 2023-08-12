@@ -10,8 +10,7 @@ const createCategory = asyncHandler(async (req, res) => {
       slug: slugify(req.body.name, { lower: true }),
     };
     if (req.file) {
-      categoryObj.categoryImage =
-        process.env.API_URL + "/images/" + req.file.filename;
+      categoryObj.categoryImage = API_URL + "/images/" + req.file.filename;
     }
 
     if (req.body.parentId) {

@@ -5,6 +5,7 @@ const { notFound, errorHandler } = require("./src/middlewares/errorHandler");
 const bodyParser = require("body-parser");
 const env = require("dotenv").config();
 const path = require("path");
+const cors = require("cors");
 const port = process.env.PORT || 3000;
 
 // routes
@@ -18,6 +19,7 @@ const cartRouter = require("./src/routes/cartRoute");
 
 dbConnect();
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/images", express.static(path.join(__dirname, "images")));
