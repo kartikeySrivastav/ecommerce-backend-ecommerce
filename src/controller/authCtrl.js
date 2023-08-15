@@ -3,20 +3,19 @@ const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../config/jwtToken");
 
 const createUser = asyncHandler(async (req, res) => {
-  // Check for existing users with the same username or email
-  const email = req.body.email;
-  const findUser = await User.findOne({ email: email });
-  if (!findUser) {
-    // generate a random username
-    const randomUsername = Math.random().toString();
-    // Create the user object with the generated random username
+  try {
+    const { email } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new Error("User Already Exists");
+    }
     const newUser = await User.create({
       ...req.body,
       username: randomUsername,
     });
-    return res.json(newUser);
-  } else {
-    throw new Error("User Already Exists");
+    return res.json({ message: "User Created Successfuly" });
+  } catch (error) {
+    throw new Error(error);
   }
 });
 

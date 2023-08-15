@@ -3,21 +3,27 @@ const asyncHandler = require("express-async-handler");
 const { generateToken } = require("../../config/jwtToken");
 
 const createUser = asyncHandler(async (req, res) => {
-  // Check for existing users with the same username or email
-  const email = req.body.email;
-  const findUser = await User.findOne({ email: email });
-  if (!findUser) {
-    // generate a random username
-    const randomUsername = Math.random().toString();
-    // Create the user object with the generated random username
+  try {
+    const { email } = req.body;
+
+    const existingUser = await User.findOne({ email, role: "user" });
+    const existingAdmin = await User.findOne({ email, role: "admin" });
+
+    if (existingUser) {
+      throw new Error("User with the same email already exists");
+    }
+
+    if (existingAdmin) {
+      throw new Error("Admin with the same email already exists");
+    }
     const newAdmin = await User.create({
       ...req.body,
-      username: randomUsername,
+      username: Math.random().toString(),
       role: "admin",
     });
-    return res.json(newAdmin);
-  } else {
-    throw new Error("Admin Already Exists");
+    return res.json({ message: "Admin created Successfully..!" });
+  } catch (error) {
+    throw new Error(error);
   }
 });
 
@@ -33,6 +39,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
   ) {
     const { _id, fname, lname, email, role, fullName } = findUser;
     const token = generateToken({ _id, role: findUser?.role });
+    res.cookie("token", token, { expiresIn: "1d" });
     res.json({
       _id,
       fname,
@@ -47,6 +54,12 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
   }
 });
 
-// get a user
-const getUser = asyncHandler(async (req, res) => {});
-module.exports = { createUser, loginUserCtrl };
+const signOutUser = asyncHandler(async (req, res) => {
+  try {
+    res.clearCookie("token");
+    res.json({ message: "Signout Successfuly " });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+module.exports = { createUser, loginUserCtrl, signOutUser };
